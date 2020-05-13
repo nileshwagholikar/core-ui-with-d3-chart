@@ -1,0 +1,22 @@
+<div class="animated fadeIn">
+  <div class="card">
+    <div class="card-header">      
+      <div class="row">
+        <div class="form-group col-sm-4">
+          My Line Chart
+        </div>
+        <div class="form-group col-sm-4">
+          <label for="ccmonth">Select battery cell:</label>
+          <select class="form-control" id="ccmonth" 
+            [(ngModel)]="selectedBatteryCell"
+            (change)='onCellSelect(selectedBatteryCell)'>
+            <option [value]="cell" *ngFor="let cell of batteryCellsList">{{cell}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="chart-wrapper"></div>
+    </div>
+  </div>
+</div>
