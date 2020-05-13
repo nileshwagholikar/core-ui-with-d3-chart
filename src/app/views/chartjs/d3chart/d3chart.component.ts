@@ -10,7 +10,7 @@ import IBatteryData from './IBatteryData';
 export class D3ChartComponent implements OnInit {
   selectedCellDataList: ICellData[];
   batteryDataList: IBatteryData[];
-  batteryCellsList: any[] = ["C1","C2","C3"];
+  batteryCellsList: any[];
   selectedBatteryCell: any;
 
   constructor(private _D3DataService: D3DataService) {}
@@ -32,12 +32,6 @@ export class D3ChartComponent implements OnInit {
     });
   }
 
-  getCellData() {
-    this._D3DataService.getCellData().subscribe((cellData) => {
-      this.selectedCellDataList = cellData;
-    });
-  }
-
   onCellSelect(value:string){
     this.selectedBatteryCell = value;
     console.log("The selected cell value is " + value);
@@ -54,12 +48,12 @@ export class D3ChartComponent implements OnInit {
 
   generateD3Chart(graphData){
     if(!graphData) return;
-
+    
     // format the data
-    var data = graphData;
+    const data = graphData;
 
     // Use the margin convention practice 
-    var margin = {top: 50, right: 50, bottom: 50, left: 50}
+    const margin = {top: 50, right: 50, bottom: 50, left: 50}
     , width = document.querySelector(".chart-wrapper").clientWidth - margin.left - margin.right // Use the window's width 
     , height = window.innerHeight - margin.top - margin.bottom - 350; // Use the window's height
 
@@ -68,8 +62,8 @@ export class D3ChartComponent implements OnInit {
     });
 
     // set the ranges
-    var datesArray = data.map(data => data.cellDate);
-    var minDate = Math.min(...datesArray);
+    const datesArray = data.map(data => data.cellDate);
+    const minDate = Math.min(...datesArray);
     var maxDate = Math.max(...datesArray);
 
     var x = d3.scaleTime()
@@ -84,7 +78,7 @@ export class D3ChartComponent implements OnInit {
               .range([height, 0]);
 
     // Remove SVG to generate new SVG
-    d3.select("svg").remove();
+    d3.select(".chart-wrapper").select("svg").remove();
 
     // Add the SVG to the page and employ #2
     var svg = d3.select(".chart-wrapper")
@@ -102,9 +96,8 @@ export class D3ChartComponent implements OnInit {
                                 return d.cellValue; 
                               })]);
 
-    // Add the valueline path.
-    svg.enter()
-        .append("path")
+    svg.append("path")
+        .datum(data)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
