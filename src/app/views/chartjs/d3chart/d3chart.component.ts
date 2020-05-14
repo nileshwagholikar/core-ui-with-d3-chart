@@ -16,25 +16,34 @@ export class D3ChartComponent implements OnInit {
   constructor(private _D3DataService: D3DataService) {}
 
   ngOnInit(): void {
+    // Fetch data on initializing the component
     this.getBatteryData();
   }
 
   getBatteryData() {
     this._D3DataService.getBatteryData().subscribe((batteryDataList) => {
       this.batteryDataList = batteryDataList;
+
+      // Extract Keys for generating dropdown list
       this.batteryCellsList = Object.keys(batteryDataList[0]).reduce((accumulator, key) => {
           if (key !== 'date') {
             accumulator.push(key);
           }
           return accumulator;
       }, []);
-      this.onCellSelect(this.batteryCellsList[0]);
+
+      // if keys are not empty then pass key value to generate graph
+      if (this.batteryCellsList.length) {
+        this.onCellSelect(this.batteryCellsList[0]);
+      }
     });
   }
 
   onCellSelect(value: string) {
     this.selectedBatteryCell = value;
     this.selectedCellDataList = [];
+
+    // generate data for selected Cell
     this.batteryDataList.forEach(batteryData => {
       const cellData: ICellData = {
         cellDate: batteryData['date'],
@@ -42,23 +51,28 @@ export class D3ChartComponent implements OnInit {
       };
       this.selectedCellDataList.push(cellData);
     });
+
+    // Call generate chart function
     this.generateD3Chart(this.selectedCellDataList);
   }
 
   generateD3Chart(data) {
+    // if no data is passed it will return empty. No error is thrown
     if (!data) {
       return;
     }
-    // Use the margin convention practice
+
+    // set Graph design parameters
     const margin = {top: 50, right: 50, bottom: 50, left: 50}
     , width = document.querySelector('.chart-wrapper').clientWidth - margin.left - margin.right // Use the window's width
     , height = window.innerHeight - margin.top - margin.bottom - 350; // Use the window's height
 
+    // Loop through data to Convert cellDate data to date
     data.forEach(function(d) {
       d.cellDate = new Date(d.cellDate.replace(/-/g, '/'));
     });
 
-    // set the ranges
+    // set the ranges for x axis and y axis
     const datesArray = data.map(d => d.cellDate);
     const minDate = Math.min(...datesArray);
     const maxDate = Math.max(...datesArray);
@@ -77,7 +91,7 @@ export class D3ChartComponent implements OnInit {
     // Remove Old SVG to generate new SVG
     d3.select('.chart-wrapper').select('svg').remove();
 
-    // Add the SVG
+    // Add the new SVG
     const svg = d3.select('.chart-wrapper')
     .data(data)
     .append('svg')
@@ -111,7 +125,7 @@ export class D3ChartComponent implements OnInit {
         .call(d3.axisBottom(x));
 
     // Add the Y Axis
-    svg.append(`g`)
+    svg.append('g')
         .call(d3.axisLeft(y));
   }
 }
